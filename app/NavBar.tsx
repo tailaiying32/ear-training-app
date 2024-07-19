@@ -2,8 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import clsx from 'clsx';
 
-export default function NavBar() {
+const NavBar = () => {
+
+    const pathname = usePathname();
+
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleMenuToggle = () => {
@@ -72,20 +77,32 @@ export default function NavBar() {
                             <div className="flex items-center space-x-4">
                                 <Link
                                     href="/dashboard"
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white"
+                                    className={clsx("px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                                        {
+                                            'text-white font-medium': pathname == "/dashboard",
+                                        },
+                                    )}
                                     aria-current="page"
                                 >
                                     Dashboard
                                 </Link>
                                 <Link
                                     href="/progress"
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white"
+                                    className={clsx("px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                                        {
+                                            'text-white font-medium': pathname == "/progress",
+                                        },
+                                    )}
                                 >
                                     Progress
                                 </Link>
                                 <Link
                                     href="/learn"
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white"
+                                    className={clsx("px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                                        {
+                                            'text-white font-medium': pathname == "/learn",
+                                        },
+                                    )}
                                 >
                                     Learn
                                 </Link>
@@ -99,25 +116,37 @@ export default function NavBar() {
             {menuOpen && (
                 <div className="sm:hidden" id="mobile-menu">
                     <div className="space-y-1 px-2 pt-2 pb-3">
-                        <a
-                            href="#"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white"
+                        <Link
+                            href="/dashboard"
+                            className={clsx(" block px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                                {
+                                    'text-white font-medium': pathname == "/dashboard",
+                                },
+                            )}
                             aria-current="page"
                         >
                             Dashboard
-                        </a>
-                        <a
-                            href="#"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white"
+                        </Link>
+                        <Link
+                            href="/progress"
+                            className={clsx("px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                                {
+                                    'text-white font-medium': pathname == "/progress",
+                                },
+                            )}
                         >
                             Progress
-                        </a>
-                        <a
-                            href="#"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white"
+                        </Link>
+                        <Link
+                            href="/learn"
+                            className={clsx(" block px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                                {
+                                    'text-white font-medium': pathname == "/learn",
+                                },
+                            )}
                         >
                             Learn
-                        </a>
+                        </Link>
                     </div>
                 </div>
             )}
@@ -125,3 +154,4 @@ export default function NavBar() {
     );
 }
 
+export default NavBar;
