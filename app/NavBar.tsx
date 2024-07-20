@@ -16,7 +16,7 @@ const NavBar = () => {
     };
 
     return (
-        <nav className="bg-black">
+        <nav className="bg-black w-full sticky top-0 z-50">
             <div className="mx-0 max-w-7xl px-4 sm:px-6">
                 <div className="relative flex h-16 items-center justify-between">
                     <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">

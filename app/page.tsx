@@ -5,7 +5,7 @@ export default function Home() {
     return (
         <div>
             <Button asChild>
-                <Link href="/login">Login</Link>
+                <Link href="/sign-in">Sign In</Link>
             </Button>
             <Button asChild>
                 <Link href="/sign-up">Sign Up</Link>
