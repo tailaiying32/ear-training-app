@@ -1,0 +1,60 @@
+{
+    "intervals": [
+        {
+            "name": "min 2",
+            "halfsteps": 1
+        },
+        {
+            "name": "maj 2",
+            "halfsteps": 2
+        },
+        {
+            "name": "min 3",
+            "halfsteps": 3
+        },
+        {
+            "name": "maj 3",
+            "halfsteps": 4
+        },
+        {
+            "name": "per 4",
+            "halfsteps": 5
+        },
+        {
+            "name": "aug 4/dim 5",
+            "halfsteps": 6
+        },
+        {
+            "name": "per 5",
+            "halfsteps": 7
+        },
+        {
+            "name": "min 6",
+            "halfsteps": 8
+        },
+        {
+            "name": "maj 6",
+            "halfsteps": 9
+        },
+        {
+            "name": "min 7",
+            "halfsteps": 10
+        },
+        {
+            "name": "maj 7",
+            "halfsteps": 11
+        },
+        {
+            "name": "per 8",
+            "halfsteps": 12
+        },
+        {
+            "name": "min 9",
+            "halfsteps": 13
+        },
+        {
+            "name": "maj 9",
+            "halfsteps": 14
+        }
+    ]
+}

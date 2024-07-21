@@ -75,13 +75,13 @@ const Popup: React.FC<PopupProps> = ({ level, setLevel, exerciseName, setExercis
 
 
             <Button className="px-6 py-3 w-full text-white hover:opacity-90 transition-colors text-lg font-semibold"
-                style={{ backgroundColor: levelColors[level - 1] }}>
+                style={{ backgroundColor: levelColors[level - 1] }} asChild>
                 <Link href="/exercise">Start!</Link>
             </Button>
 
             {!isSignedIn && (
                 <Button variant='link' className='pt-6 text-gray-600 text-sm'>
-                    <Link href='/sign-in'>Sign in to save your progress</Link>
+                    <Link href='/sign-in' className='flex-grow'>Sign in to save your progress</Link>
                 </Button>
             )}
 

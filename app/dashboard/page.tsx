@@ -11,6 +11,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { useUser, useAuth } from "@clerk/nextjs";
+import Link from "next/link";
+
 
 const levelColors = [
     "#f8812e", "#e33545", "#8f479c", "#008bcd", "#00a07b",
@@ -40,7 +42,12 @@ function Dashboard() {
             <div className={`w-full max-w-7xl transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
                 <h1 className="text-6xl font-bold mb-4 text-center">Ear Training</h1>
 
-                <p className="text-xl text-center mb-12 text-gray-600 font-normal">Welcome back{isSignedIn ? ` ${user?.firstName}` : ''}!</p>
+                <p className="text-xl text-center mb-12 text-gray-600 font-normal mt-6">
+                    {isSignedIn ?
+                        (user?.firstName ? `Welcome back ${user?.firstName}!` : 'Welcome back!') :
+                        'Welcome!'
+                    }
+                </p>
 
                 <div className="mb-16 flex justify-center">
                     <div className="flex flex-wrap justify-center gap-4">
