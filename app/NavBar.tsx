@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { SignOutButton, useAuth } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
 
 const NavBar = () => {
 
@@ -15,9 +17,11 @@ const NavBar = () => {
         setMenuOpen(!menuOpen);
     };
 
+    const { getToken, isLoaded, isSignedIn } = useAuth();
+
     return (
         <nav className="bg-black w-full sticky top-0 z-50">
-            <div className="mx-0 max-w-7xl px-4 sm:px-6">
+            <div className="mx-0 w-full px-4 sm:px-6">
                 <div className="relative flex h-16 items-center justify-between">
                     <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                         {/* Mobile menu button */}
@@ -66,14 +70,14 @@ const NavBar = () => {
                         <div className="flex-shrink-0">
                             <Link href="/">
                                 <img
-                                    className="h-12 w-auto ml-2"
+                                    className="h-12 w-auto"
                                     src="https://apollodesign.net/media/catalog/product/cache/dbf21ea40c5a4552c901061577d4786d/M/S/MSDS-8017.png"
                                     alt="Your Company"
                                 />
                             </Link>
 
                         </div>
-                        <div className="hidden sm:flex sm:items-center sm:ml-6">
+                        <div className="hidden sm:flex sm:items-center sm:ml-6 justify-between w-full">
                             <div className="flex items-center space-x-4">
                                 <Link
                                     href="/dashboard"
@@ -107,6 +111,24 @@ const NavBar = () => {
                                     Learn
                                 </Link>
                             </div>
+                            {isSignedIn && (
+                                <div className='text-gray-300 hover:text-white text-base font-normal'>
+                                    <SignOutButton>Sign Out</SignOutButton>
+                                </div>
+                            )}
+                            {!isSignedIn && (
+                                <Link
+                                    href="/sign-in"
+                                    className={clsx("px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                                        {
+                                            'text-white font-medium': pathname == "/sign-in",
+                                        },
+                                    )}
+                                >
+                                    Sign In
+                                </Link>
+                            )}
+
                         </div>
                     </div>
                 </div>
@@ -115,7 +137,7 @@ const NavBar = () => {
             {/* Mobile menu */}
             {menuOpen && (
                 <div className="sm:hidden" id="mobile-menu">
-                    <div className="space-y-1 px-2 pt-2 pb-3">
+                    <div className="px-2 pb-3">
                         <Link
                             href="/dashboard"
                             className={clsx(" block px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
@@ -129,7 +151,7 @@ const NavBar = () => {
                         </Link>
                         <Link
                             href="/progress"
-                            className={clsx("px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
+                            className={clsx("block px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",
                                 {
                                     'text-white font-medium': pathname == "/progress",
                                 },
