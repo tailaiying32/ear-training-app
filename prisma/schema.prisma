@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,9 +14,23 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-model Exercise {
-  id      Int    @id @default(autoincrement())
-  type    String
-  level   Int
-  content Json //Json data for exercises
+model Level {
+  id        Int        @id @default(autoincrement())
+  level     Int        @unique
+  Intervals Interval[]
+}
+
+model Interval {
+  id        Int     @id @default(autoincrement())
+  name      String
+  halfsteps Int
+  format    String
+  Levels    Level[]
+}
+
+enum ExerciseType {
+  INTERVAL
+  CHORD
+  CHORD_PROGRESSION
+  CLAPBACK_PLAYBACK
 }

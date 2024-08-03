@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "./NavBar";
 import { ClerkProvider } from "@clerk/nextjs";
+import { LevelProvider } from "./context/level-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,12 +19,15 @@ export default function RootLayout({
 }>) {
     return (
         <ClerkProvider>
-            <html lang="en">
-                <body className={inter.className}>
-                    <NavBar />
-                    {children}
-                </body>
-            </html>
+            <LevelProvider>
+                <html lang="en">
+                    <body className={inter.className}>
+                        <NavBar />
+                        {children}
+                    </body>
+                </html>
+            </LevelProvider>
+
         </ClerkProvider>
 
     );

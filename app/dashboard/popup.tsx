@@ -4,10 +4,11 @@ import React, { useState, Dispatch, SetStateAction } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@clerk/nextjs';
+import { useLevel } from '../context/level-context';
 
 interface PopupProps {
-    level: number;
-    setLevel: Dispatch<SetStateAction<number>>;
+    // level: number;
+    // setLevel: Dispatch<SetStateAction<number>>;
     exerciseName: string | null;
     setExercise: Dispatch<SetStateAction<string | null>>;
 }
@@ -17,9 +18,10 @@ const levelColors = [
     "#001e40", "#95003b", "#4d0651", "#c28b17", "#417929",
 ];
 
-const Popup: React.FC<PopupProps> = ({ level, setLevel, exerciseName, setExercise }) => {
+const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
     const [questions, setQuestions] = useState(10);
     const { getToken, isLoaded, isSignedIn } = useAuth();
+    const { level, setLevel } = useLevel();
 
     return (
         <div className="p-8 flex flex-col items-center rounded-lg w-full max-w-2xl bg-white">
@@ -76,7 +78,7 @@ const Popup: React.FC<PopupProps> = ({ level, setLevel, exerciseName, setExercis
 
             <Button className="px-6 py-3 w-full text-white hover:opacity-90 transition-colors text-lg font-semibold"
                 style={{ backgroundColor: levelColors[level - 1] }} asChild>
-                <Link href="/exercise">Start!</Link>
+                <Link href="/exercise/intervals">Start!</Link>
             </Button>
 
             {!isSignedIn && (
