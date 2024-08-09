@@ -4,6 +4,8 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
+    // console.log('API route hit:', request.url);
+
     const { searchParams } = new URL(request.url);
     const level = searchParams.get('level');
 
@@ -16,7 +18,7 @@ export async function GET(request: Request) {
             where: { level: parseInt(level) },
             include: { Intervals: true },
         });
-        console.log(intervals);
+        // console.log(intervals);
         if (!intervals) {
             return NextResponse.json({ error: 'Level not found' }, { status: 404 });
         }

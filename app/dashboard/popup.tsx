@@ -27,7 +27,9 @@ const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
         <div className="p-8 flex flex-col items-center rounded-lg w-full max-w-2xl bg-white">
             <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">{exerciseName}</h1>
             <p className="mb-8 text-gray-600 text-left leading-relaxed">
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consectetur quis consequatur odio autem? Architecto, nulla quibusdam! Aperiam, earum. Molestias dolorum veniam, distinctio necessitatibus quasi quas ut libero consequuntur aliquam repellendus.
+                {/* {if (level in [1, 2, 3, 4]) {
+                    <p>You will be asked to identify the interval. The interval will be played in melodic form, asending or descending, once.</p>
+                }} */}
             </p>
 
             <div className="mb-8 w-full">
@@ -59,8 +61,11 @@ const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
                     type="number"
                     min="1"
                     max="100"
-                    value={questions}
-                    onChange={(e) => setQuestions(Number(e.target.value))}
+                    value={questions === 0 ? '' : questions}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setQuestions(value === '' ? 0 : Number(value));
+                    }}
                     className="text-lg font-normal focus:outline-none w-20 p-2 border rounded-md text-center"
                     placeholder="10"
                 />
@@ -74,11 +79,9 @@ const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
                 Create custom preset
             </Button>
 
-
-
             <Button className="px-6 py-3 w-full text-white hover:opacity-90 transition-colors text-lg font-semibold"
                 style={{ backgroundColor: levelColors[level - 1] }} asChild>
-                <Link href="/exercise/intervals">Start!</Link>
+                <Link href={`/exercise/intervals?level=${level}&totalquestions=${questions}&question=1`} >Start!</Link>
             </Button>
 
             {!isSignedIn && (

@@ -90,8 +90,6 @@ function Dashboard() {
                             </DialogTrigger>
                             <DialogContent className="w-full max-w-2xl">
                                 <Popup
-                                    // level={level}
-                                    // setLevel={setLevel}
                                     exerciseName={selectedExercise}
                                     setExercise={setSelectedExercise}
                                 />

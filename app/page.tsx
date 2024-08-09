@@ -24,14 +24,3 @@ export default function Home() {
     );
 }
 
-// Add this CSS to your global styles or a separate file
-`
-@keyframes fade-in {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-    animation: fade-in 1s ease-out;
-}
-`
