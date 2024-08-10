@@ -6,7 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Factory } from "vexflow";
 import { useLevel } from '../../context/level-context';
-import { allNotes } from '@/data/all-notes';
+import { allNotesSharps } from '@/data/all-notes-sharps';
+import { allNotesFlats } from '@/data/all-notes-flats';
 
 type Interval = {
     id: number;
@@ -39,7 +40,7 @@ function Exercise() {
     const [allQuestions, setAllQuestions] = useState<Interval[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-    const startingNotes = allNotes.slice(28, 52); //starting notes from C3 to C5
+    const startingNotes = allNotesSharps.slice(28, 52); //starting notes from C3 to C5
 
     //set level for first time
     const level = parseInt(searchParams.get('level') || contextLevel.toString());
@@ -126,6 +127,11 @@ function Exercise() {
         let noteIndex: number;
         let newOctave: number;
 
+        if (startNote.includes('b')) {
+            startNote = allNotesSharps[allNotesFlats.indexOf(startNote)];
+            console.log(startNote);
+        }
+
         // determine if startNote has sharps
         if (startNote.match(noSharps)) {
             const [, note, oct] = startNote.match(noSharps)!;
@@ -183,8 +189,8 @@ function Exercise() {
 
                 const score = vf.EasyScore();
                 const system = vf.System({
-                    width: 300,
-                    x: 100,
+                    width: 200,
+                    x: 150,
                     y: 125
                 });
 
@@ -192,14 +198,42 @@ function Exercise() {
 
                 //set interval and starting note to current note and current starting note
                 const { currentInterval } = intervalState;
-                const startNote = currentInterval?.startingNote;
+                console.log("current interval: ", currentInterval);
 
+                //if there are no intervals, skip render
                 if (!currentInterval) {
                     console.log('No current interval, skipping render');
                     return;
                 }
+                const convertSharpToFlat = (note: string) => {
+                    const index = allNotesSharps.indexOf(note);
+                    return index !== -1 ? allNotesFlats[index] : note;
+                };
 
-                const endNote = getEndNote(startNote!, currentInterval.halfsteps, currentInterval.format);
+                const shouldConvertToFlat = (note: string, intervalName: string, format: string) => {
+                    if (!note.includes('#')) return false;
+
+                    const isAscending = format === 'ascending';
+                    const isDescending = format === 'descending';
+
+                    return (
+                        (intervalName.includes('maj') && isAscending) ||
+                        (intervalName.includes('dim') && isAscending) ||
+                        (intervalName.includes('min') && isDescending)
+                    );
+                };
+
+                let startNote = currentInterval.startingNote;
+                if (shouldConvertToFlat(startNote, currentInterval.name, currentInterval.format)) {
+                    startNote = convertSharpToFlat(startNote);
+                }
+
+                let endNote = getEndNote(startNote, currentInterval.halfsteps, currentInterval.format);
+
+                if (shouldConvertToFlat(endNote, currentInterval.name, currentInterval.format) ||
+                    (endNote.includes('#') && currentInterval.name.includes('min') && currentInterval.format === 'ascending')) {
+                    endNote = convertSharpToFlat(endNote);
+                }
 
                 let notes;
                 if (currentInterval.format === 'harmonic') {
@@ -210,34 +244,70 @@ function Exercise() {
                     notes = `${endNote}/h, ${startNote}/h`;
                 }
 
-                console.log("notes:", notes);
+                // !!!!!! please make the code below more readable and maintainable at some point get rid of all the fucking if loops
 
-                // if no notes have accidentals, leave as is
+                // let startNote; //declare startNote
 
-                // if one note has an accidental: {
-                // if minor interval, use sharps for bottom note and flats for top note
-                // if major interval, use flats for bottom note and sharps for top note
+                // // ascending start note cases for sharp to flat conversion (maj and dim)
+                // if (currentInterval?.startingNote.includes('#') && currentInterval.name.includes('maj') && currentInterval.format === 'ascending') {
+                //     let startNoteIndex = allNotesSharps.indexOf(currentInterval.startingNote);
+                //     startNote = allNotesFlats[startNoteIndex];
+                // } else if (currentInterval.startingNote.includes('#') && currentInterval.name.includes('dim') && currentInterval.format === 'ascending') {
+                //     let startNoteIndex = allNotesSharps.indexOf(currentInterval.startingNote);
+                //     startNote = allNotesFlats[startNoteIndex];
                 // }
 
-                // if both notes have an accidental: {
-                //avoid E#, B#, Fb, and Cb
-                //don't mix sharps and flats
-                //}
+                // //descending start note case for sharp to flat conversion (minor)
+                // if (currentInterval?.startingNote.includes('#') && currentInterval.name.includes('min') && currentInterval.format === 'descending') {
+                //     let startNoteIndex = allNotesSharps.indexOf(currentInterval.startingNote);
+                //     startNote = allNotesFlats[startNoteIndex];
+                // }
 
-                //if average of start note and end note index falls above C4, render on treble, otherwise, render on bass
-                if ((allNotes.indexOf(startNote!) + allNotes.indexOf(endNote)) / 2 >= 39) {
-                    system.addStave({
-                        voices: [
-                            score.voice(score.notes(notes)),
-                        ]
-                    }).addClef('treble').addTimeSignature('4/4');
-                } else {
-                    system.addStave({
-                        voices: [
-                            score.voice(score.notes(notes, { clef: 'bass' })),
-                        ]
-                    }).addClef('bass').addTimeSignature('4/4');
-                }
+                // startNote = currentInterval.startingNote;
+
+                // let endNote = getEndNote(startNote!, currentInterval.halfsteps, currentInterval.format);
+
+                // //ascending end note case for sharp to flat conversion ( minor)
+                // if (endNote.includes('#') && currentInterval.name.includes('min') && currentInterval.format === 'ascending') {
+                //     let endNoteIndex = allNotesSharps.indexOf(endNote);
+                //     endNote = allNotesFlats[endNoteIndex];
+                // }
+
+                // //descending end note cases for sharp to flat conversion (maj and dim)
+                // if (endNote.includes('#') && currentInterval.name.includes('maj') && currentInterval.format === 'descending') {
+                //     let endNoteIndex = allNotesSharps.indexOf(endNote);
+                //     endNote = allNotesFlats[endNoteIndex];
+                // } else if (endNote.includes('#') && currentInterval.name.includes('dim') && currentInterval.format === 'descending') {
+                //     let endNoteIndex = allNotesSharps.indexOf(endNote);
+                //     endNote = allNotesFlats[endNoteIndex];
+                // }
+
+                // let notes; //declare notes to be rendered
+                // if (currentInterval.format === 'harmonic') {
+                //     notes = `(${startNote} ${endNote})/w`;
+                // } else if (currentInterval.format === 'ascending') {
+                //     notes = `${startNote}/h, ${endNote}/h`;
+                // } else {  // descending
+                //     notes = `${endNote}/h, ${startNote}/h`;
+                // }
+
+                const getIndexInFullScale = (note: string): number => {
+                    const flatIndex = allNotesFlats.indexOf(note);
+                    const sharpIndex = allNotesSharps.indexOf(note);
+                    return Math.max(flatIndex, sharpIndex); // Use whichever index is valid
+                };
+
+                const averageIndex = (getIndexInFullScale(startNote) + getIndexInFullScale(endNote)) / 2;
+
+                // C4 is at index 39 in a full 88-key scale
+                const isHigherThanMiddleC = averageIndex >= 39;
+
+                system.addStave({
+                    voices: [
+                        score.voice(score.notes(notes, { clef: isHigherThanMiddleC ? 'treble' : 'bass' })),
+                    ]
+                }).addClef(isHigherThanMiddleC ? 'treble' : 'bass').addTimeSignature('4/4');
+
                 vf.draw();
 
                 rendererRef.current = vf;

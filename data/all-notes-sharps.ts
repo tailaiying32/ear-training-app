@@ -1,5 +1,5 @@
 //to get index of note, subtract 3 from line number (eg C4 is index 42-3 = index 39)
-export const allNotes = [
+export const allNotesSharps = [
     "A0",
     "A#0",
     "B0",
