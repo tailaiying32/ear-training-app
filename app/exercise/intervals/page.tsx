@@ -205,12 +205,15 @@ function Exercise() {
                     console.log('No current interval, skipping render');
                     return;
                 }
+
+                //function to convert sharps to flats
                 const convertSharpToFlat = (note: string) => {
                     const index = allNotesSharps.indexOf(note);
                     return index !== -1 ? allNotesFlats[index] : note;
                 };
 
-                const shouldConvertToFlat = (note: string, intervalName: string, format: string) => {
+                //decide when to convert to flat
+                const shouldConvertStartToFlat = (note: string, intervalName: string, format: string) => {
                     if (!note.includes('#')) return false;
 
                     const isAscending = format === 'ascending';
@@ -223,18 +226,33 @@ function Exercise() {
                     );
                 };
 
+                const shouldConvertEndToFlat = (note: string, intervalName: string, format: string) => {
+                    if (!note.includes('#')) return false;
+
+                    const isAscending = format === 'ascending';
+                    const isDescending = format === 'descending';
+
+                    return (
+                        (intervalName.includes('maj') && isDescending) ||
+                        (intervalName.includes('dim') && isDescending) ||
+                        (intervalName.includes('min') && isAscending)
+                    );
+                };
+
+                //convert start note to flat?
                 let startNote = currentInterval.startingNote;
-                if (shouldConvertToFlat(startNote, currentInterval.name, currentInterval.format)) {
+                if (shouldConvertStartToFlat(startNote, currentInterval.name, currentInterval.format)) {
                     startNote = convertSharpToFlat(startNote);
                 }
 
                 let endNote = getEndNote(startNote, currentInterval.halfsteps, currentInterval.format);
 
-                if (shouldConvertToFlat(endNote, currentInterval.name, currentInterval.format) ||
-                    (endNote.includes('#') && currentInterval.name.includes('min') && currentInterval.format === 'ascending')) {
+                //convert end note to flat?
+                if (shouldConvertEndToFlat(endNote, currentInterval.name, currentInterval.format)) {
                     endNote = convertSharpToFlat(endNote);
                 }
 
+                //structure basic note rendering
                 let notes;
                 if (currentInterval.format === 'harmonic') {
                     notes = `(${startNote} ${endNote})/w`;
@@ -244,53 +262,7 @@ function Exercise() {
                     notes = `${endNote}/h, ${startNote}/h`;
                 }
 
-                // !!!!!! please make the code below more readable and maintainable at some point get rid of all the fucking if loops
-
-                // let startNote; //declare startNote
-
-                // // ascending start note cases for sharp to flat conversion (maj and dim)
-                // if (currentInterval?.startingNote.includes('#') && currentInterval.name.includes('maj') && currentInterval.format === 'ascending') {
-                //     let startNoteIndex = allNotesSharps.indexOf(currentInterval.startingNote);
-                //     startNote = allNotesFlats[startNoteIndex];
-                // } else if (currentInterval.startingNote.includes('#') && currentInterval.name.includes('dim') && currentInterval.format === 'ascending') {
-                //     let startNoteIndex = allNotesSharps.indexOf(currentInterval.startingNote);
-                //     startNote = allNotesFlats[startNoteIndex];
-                // }
-
-                // //descending start note case for sharp to flat conversion (minor)
-                // if (currentInterval?.startingNote.includes('#') && currentInterval.name.includes('min') && currentInterval.format === 'descending') {
-                //     let startNoteIndex = allNotesSharps.indexOf(currentInterval.startingNote);
-                //     startNote = allNotesFlats[startNoteIndex];
-                // }
-
-                // startNote = currentInterval.startingNote;
-
-                // let endNote = getEndNote(startNote!, currentInterval.halfsteps, currentInterval.format);
-
-                // //ascending end note case for sharp to flat conversion ( minor)
-                // if (endNote.includes('#') && currentInterval.name.includes('min') && currentInterval.format === 'ascending') {
-                //     let endNoteIndex = allNotesSharps.indexOf(endNote);
-                //     endNote = allNotesFlats[endNoteIndex];
-                // }
-
-                // //descending end note cases for sharp to flat conversion (maj and dim)
-                // if (endNote.includes('#') && currentInterval.name.includes('maj') && currentInterval.format === 'descending') {
-                //     let endNoteIndex = allNotesSharps.indexOf(endNote);
-                //     endNote = allNotesFlats[endNoteIndex];
-                // } else if (endNote.includes('#') && currentInterval.name.includes('dim') && currentInterval.format === 'descending') {
-                //     let endNoteIndex = allNotesSharps.indexOf(endNote);
-                //     endNote = allNotesFlats[endNoteIndex];
-                // }
-
-                // let notes; //declare notes to be rendered
-                // if (currentInterval.format === 'harmonic') {
-                //     notes = `(${startNote} ${endNote})/w`;
-                // } else if (currentInterval.format === 'ascending') {
-                //     notes = `${startNote}/h, ${endNote}/h`;
-                // } else {  // descending
-                //     notes = `${endNote}/h, ${startNote}/h`;
-                // }
-
+                //decide when to use treble or bass clef
                 const getIndexInFullScale = (note: string): number => {
                     const flatIndex = allNotesFlats.indexOf(note);
                     const sharpIndex = allNotesSharps.indexOf(note);
@@ -311,6 +283,7 @@ function Exercise() {
                 vf.draw();
 
                 rendererRef.current = vf;
+
             } catch (error) {
                 console.error('Error rendering VexFlow:', error);
             }
@@ -361,7 +334,7 @@ function Exercise() {
     }
 
 
-    //creat new array of intervals with unique names for answer buttons
+    //create new array of intervals with unique names for answer buttons
     const uniqueIntervalsNames = Array.from(new Set(intervalState.allIntervals.map(interval => interval.name)));
     console.log("displayed interval: ", intervalState.currentInterval?.name)
 
