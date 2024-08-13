@@ -5,9 +5,12 @@ import { useSearchParams } from 'next/navigation';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Factory } from "vexflow";
-import { useLevel } from '../../context/level-context';
+import { LevelProvider, useLevel } from '../../context/level-context';
 import { allNotesSharps } from '@/data/all-notes-sharps';
 import { allNotesFlats } from '@/data/all-notes-flats';
+import * as Tone from "tone";
+import { start } from 'repl';
+
 
 type Interval = {
     id: number;
@@ -29,6 +32,13 @@ function Exercise() {
         currentInterval: null,
         allIntervals: []
     });
+
+    //for use in return statement (start note, end note, and current interval)
+    const [startNote, setStartNote] = useState<string>('');
+    const [endNote, setEndNote] = useState<string>('');
+    const [currentIntervalData, setCurrentIntervalData] = useState<any>(null);
+
+    //pull starting nots and level from respective data
     const [allstartingNotes, setAllStartingNotes] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { level: contextLevel, setLevel } = useLevel();
@@ -41,6 +51,30 @@ function Exercise() {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
     const startingNotes = allNotesSharps.slice(28, 52); //starting notes from C3 to C5
+
+    const samplerRef = useRef<Tone.Sampler | null>(null);
+    const [isSamplerLoaded, setIsSamplerLoaded] = useState(false);
+
+    //used to check if answer is correct
+    const [userAnswers, setUserAnswers] = useState<Array<{ index: number | null, isCorrect: boolean | null }>>(
+        Array(totalQuestions).fill({ index: null, isCorrect: null })
+    );
+    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+    const [clickedButton, setClickedButton] = useState<number | null>(null);
+    const checkCorrect = (currentIntervalData: Interval, name: string, index: number) => {
+        setClickedButton(index);
+        const correct = currentIntervalData.name === name;
+        setUserAnswers(prevAnswers => {
+            const newAnswers = [...prevAnswers];
+            newAnswers[currentQuestionIndex] = { index, isCorrect: correct };
+            return newAnswers;
+        });
+        setIsCorrect(correct);
+        setQuestionAnswered(true);
+    };
+
+    //check if question has been answered yet
+    const [questionAnswered, setQuestionAnswered] = useState(false);
 
     //set level for first time
     const level = parseInt(searchParams.get('level') || contextLevel.toString());
@@ -65,6 +99,77 @@ function Exercise() {
             setLevel(contextLevel);
         }
     }, [contextLevel, setLevel]);
+
+    //load piano samples
+    useEffect(() => {
+        if (!samplerRef.current) {
+            samplerRef.current = new Tone.Sampler({
+                // links to all mp3 files in public directory
+                urls: {
+                    A0: "A0.mp3",
+                    A1: "A1.mp3",
+                    A2: "A2.mp3",
+                    A3: "A3.mp3",
+                    A4: "A4.mp3",
+                    A5: "A5.mp3",
+                    A6: "A6.mp3",
+                    A7: "A7.mp3",
+                    C1: "C1.mp3",
+                    C2: "C2.mp3",
+                    C3: "C3.mp3",
+                    C4: "C4.mp3",
+                    C5: "C5.mp3",
+                    C6: "C6.mp3",
+                    C7: "C7.mp3",
+                    C8: "C8.mp3",
+                    Eb1: "D#1.mp3",
+                    Eb2: "D#2.mp3",
+                    Eb3: "D#3.mp3",
+                    Eb4: "D#4.mp3",
+                    Eb5: "D#5.mp3",
+                    Eb6: "D#6.mp3",
+                    Eb7: "D#7.mp3",
+                    Gb1: "F#1.mp3",
+                    Gb2: "F#2.mp3",
+                    Gb3: "F#3.mp3",
+                    Gb4: "F#4.mp3",
+                    Gb5: "F#5.mp3",
+                    Gb6: "F#6.mp3",
+                    Gb7: "F#7.mp3",
+                },
+                baseUrl: "/piano-samples/",
+                volume: -8,
+                onload: () => {
+                    console.log('Sampler loaded');
+                    setIsSamplerLoaded(true);
+                }
+            }).toDestination();
+        }
+    }, []);
+
+    //play piano notes
+    const playNotes = (startNote: string, endNote: string, interval: Interval, level: number) => {
+        if (isSamplerLoaded) {
+            if ([1, 2, 3, 4, 10].includes(level)) {
+                if (interval.format === "harmonic") {
+                    samplerRef.current?.triggerAttackRelease([`${startNote}`, `${endNote}`], 1.75);
+                } else {
+                    const now = Tone.now();
+                    samplerRef.current?.triggerAttackRelease(`${startNote}`, 1.3, now);
+                    samplerRef.current?.triggerAttackRelease(`${endNote}`, 1.2, now + 1.299); //slightly less to make the transition between notes smoother (slurred)
+                }
+            } else if ([5, 6, 7, 8, 9].includes(level)) {
+                const now = Tone.now();
+                samplerRef.current?.triggerAttackRelease(`${startNote}`, 1.3, now);
+                samplerRef.current?.triggerAttackRelease(`${endNote}`, 1.2, now + 1.299); //slightly less to make the transition between notes smoother (slurred)
+                samplerRef.current?.triggerAttackRelease([`${startNote}`, `${endNote}`], 1.75, now + 1.299 + 1.5);
+            }
+        }
+    }
+
+    //used to stop sounds
+    const stopSounds = () => {
+    };
 
     //fetch array of intervals from level, then select random interval
     useEffect(() => {
@@ -97,6 +202,7 @@ function Exercise() {
                 console.log("generated intervals: ", generatedIntervals);
 
                 setAllQuestions(generatedIntervals);
+                setUserAnswers(Array(totalQuestions).fill({ index: null, isCorrect: null }));
 
                 setIntervalState({
                     currentInterval: generatedIntervals[0] || null,
@@ -184,20 +290,22 @@ function Exercise() {
                 }
 
                 const vf = new Factory({
-                    renderer: { elementId: 'output', width: 800, height: 600 },
+                    renderer: { elementId: 'output', width: 800, height: 300 }
                 });
 
                 const score = vf.EasyScore();
                 const system = vf.System({
-                    width: 200,
-                    x: 150,
-                    y: 125
+                    width: 400,
+                    x: 0,
+                    y: 0
                 });
 
-                vf.getContext().scale(1.5, 1.5);
+
+                vf.getContext().scale(2.0, 2.0);
 
                 //set interval and starting note to current note and current starting note
                 const { currentInterval } = intervalState;
+                setCurrentIntervalData(currentInterval);
                 console.log("current interval: ", currentInterval);
 
                 //if there are no intervals, skip render
@@ -244,6 +352,7 @@ function Exercise() {
                 if (shouldConvertStartToFlat(startNote, currentInterval.name, currentInterval.format)) {
                     startNote = convertSharpToFlat(startNote);
                 }
+                setStartNote(startNote);
 
                 let endNote = getEndNote(startNote, currentInterval.halfsteps, currentInterval.format);
 
@@ -252,14 +361,14 @@ function Exercise() {
                     endNote = convertSharpToFlat(endNote);
                 }
 
+                setEndNote(endNote);
+
                 //structure basic note rendering
                 let notes;
                 if (currentInterval.format === 'harmonic') {
                     notes = `(${startNote} ${endNote})/w`;
-                } else if (currentInterval.format === 'ascending') {
+                } else {
                     notes = `${startNote}/h, ${endNote}/h`;
-                } else {  // descending
-                    notes = `${endNote}/h, ${startNote}/h`;
                 }
 
                 //decide when to use treble or bass clef
@@ -274,15 +383,25 @@ function Exercise() {
                 // C4 is at index 39 in a full 88-key scale
                 const isHigherThanMiddleC = averageIndex >= 39;
 
-                system.addStave({
-                    voices: [
-                        score.voice(score.notes(notes, { clef: isHigherThanMiddleC ? 'treble' : 'bass' })),
-                    ]
-                }).addClef(isHigherThanMiddleC ? 'treble' : 'bass').addTimeSignature('4/4');
+                // Always add the stave and clef
+                const stave = system.addStave({
+                    voices: []
+                }).addClef(isHigherThanMiddleC ? 'treble' : 'bass');
+
+                // Only add notes if they should be visible
+                if (isCorrect) {
+                    stave.setContext(vf.getContext()).draw();
+                    const voice = score.voice(score.notes(notes, { clef: isHigherThanMiddleC ? 'treble' : 'bass' }));
+                    vf.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+                    voice.draw(vf.getContext(), stave);
+                }
 
                 vf.draw();
 
                 rendererRef.current = vf;
+
+                //play notes
+                playNotes(startNote, endNote, currentInterval, level);
 
             } catch (error) {
                 console.error('Error rendering VexFlow:', error);
@@ -290,7 +409,7 @@ function Exercise() {
         }, 100);
 
         return () => clearTimeout(renderTimeout);
-    }, [intervalState.currentInterval, isLoading, getEndNote]);
+    }, [intervalState.currentInterval, isLoading, getEndNote, isCorrect]);
 
     //keep track of question number and update url accordingly
     useEffect(() => {
@@ -301,8 +420,8 @@ function Exercise() {
         window.history.replaceState(null, '', newUrl);
     }, [currentQuestion])
 
-    //handle next button
     const handleNextQuestion = () => {
+        stopSounds();
         if (currentQuestionIndex < totalQuestions - 1) {
             setCurrentQuestionIndex(prev => {
                 const newIndex = prev + 1;
@@ -310,7 +429,14 @@ function Exercise() {
                     ...prevState,
                     currentInterval: allQuestions[newIndex]
                 }));
-                setCurrentQuestion(newIndex + 1); // +1 because question numbers start at 1
+                setCurrentQuestion(newIndex + 1);
+                // Set button states based on stored answer
+                const storedAnswer = userAnswers[newIndex];
+                setClickedButton(storedAnswer.index);
+                if (storedAnswer.isCorrect) {
+                    setIsCorrect(storedAnswer.isCorrect);
+                }
+                setIsCorrect(null);
                 return newIndex;
             });
         } else if (currentQuestionIndex === totalQuestions - 1) {
@@ -318,8 +444,8 @@ function Exercise() {
         }
     }
 
-    //handle previous button
     const handlePreviousQuestion = () => {
+        stopSounds();
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(prev => {
                 const newIndex = prev - 1;
@@ -327,56 +453,69 @@ function Exercise() {
                     ...prevState,
                     currentInterval: allQuestions[newIndex]
                 }));
-                setCurrentQuestion(newIndex + 1); // +1 because question numbers start at 1
+                setCurrentQuestion(newIndex + 1);
+                // Set button states based on stored answer
+                const storedAnswer = userAnswers[newIndex];
+                setClickedButton(storedAnswer.index);
+                setIsCorrect(storedAnswer.isCorrect);
                 return newIndex;
             });
         }
     }
-
-
     //create new array of intervals with unique names for answer buttons
     const uniqueIntervalsNames = Array.from(new Set(intervalState.allIntervals.map(interval => interval.name)));
     console.log("displayed interval: ", intervalState.currentInterval?.name)
 
     return (
-        <>
-            <div className="min-h-[calc(100vh-64px)] bg-gray-100 text-black p-4 flex flex-col">
-                <h1 className="text-4xl font-bold mb-6 text-center">Intervals - Level {level}</h1>
+        <div className="h-screen bg-gray-100 p-4 flex flex-col px-56 pt-16">
+            <h1 className="text-3xl font-bold mb-4 text-center">Intervals - Level {level}</h1>
 
-                <Card className="flex-grow shadow-lg flex flex-col">
-                    <CardContent className="p-6 flex flex-col flex-grow">
-                        <div className="flex flex-col md:flex-row gap-8 flex-grow">
-                            <div className="md:w-1/2 flex flex-col">
-                                <div className="bg-white p-6 rounded-lg shadow-inner flex-grow flex items-center justify-center">
-                                    <div id='output'></div>
-                                </div>
-                                <Button className="mt-4 w-full">Play Interval</Button>
-                            </div>
+            <div className="flex-grow flex flex-col">
+                {/* Music notation area */}
+                <div
+                    className={`bg-white border-2 border-gray-300 rounded-lg mb-4 flex items-center justify-center flex-grow 
+                    ${questionAnswered ? (userAnswers[currentQuestionIndex].isCorrect ? 'border-green-500' : 'border-red-500') : ''}`} style={{ maxHeight: '300px' }}>
+                    <div id="output"
+                        className={`w-full h-full flex flex-grow items-center justify-center`}></div>
+                </div>
 
-                            <div className="md:w-1/2 flex flex-col">
-                                <h2 className="text-2xl font-semibold mb-4">Select the correct interval:</h2>
-                                <ul className="space-y-4 flex-grow flex flex-col justify-center">
-                                    {uniqueIntervalsNames.map((name, index) => (
-                                        <li key={index}>
-                                            <Button variant={'outline'}>{name}</Button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* Play Interval button */}
+                <Button
+                    className="w-full mb-4"
+                    onClick={() => { playNotes(startNote, endNote, currentIntervalData, level); stopSounds(); }}
+                >
+                    Play Interval
+                </Button>
 
-                <div className="flex justify-between mt-6">
-                    <Button variant="outline" onClick={handlePreviousQuestion}>Previous</Button>
-                    <div className="space-x-4">
-                        <Button>Submit</Button>
-                        <Button onClick={handleNextQuestion}>Next</Button>
-                    </div>
+                {/* Answer options */}
+                <div className="grid-container mb-4">
+                    {uniqueIntervalsNames.map((name, index) => (
+                        <Button
+                            key={index}
+                            variant="outline"
+                            onClick={() => checkCorrect(currentIntervalData, name, index)}
+                            className={`h-12 ${userAnswers[currentQuestionIndex].index === index
+                                ? userAnswers[currentQuestionIndex].isCorrect
+                                    ? 'border-2 border-green-500'
+                                    : 'border-2 border-red-500'
+                                : ''
+                                }`}
+                        >
+                            {name}
+                        </Button>
+                    ))}
+                </div>
+
+                {/* Navigation and submit buttons */}
+                <div className="flex justify-between mt-4">
+                    <Button onClick={handlePreviousQuestion}>Previous</Button>
+                    <Button onClick={handleNextQuestion}>Next</Button>
                 </div>
             </div>
-        </>
+        </div >
     );
+
+
 }
 
 export default Exercise;

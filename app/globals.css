@@ -84,3 +84,30 @@
 .animate-fade-in {
   animation: fade-in 0.7s ease-out;
 }
+
+.grid-container {
+  display: grid;
+  gap: 0.5rem;
+  /* Adjust gap between buttons */
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  /* Adjust min-width of buttons */
+}
+
+/* Ensure 2 rows max */
+@media (min-width: 600px) {
+
+  /* Adjust as needed based on screen width */
+  .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    max-height: 200px;
+    /* Adjust to control height */
+    overflow: hidden;
+  }
+}
+
+.grid-container>* {
+  flex: 1;
+  /* Ensure buttons fill available space */
+  text-align: center;
+  /* Center text in buttons */
+}
