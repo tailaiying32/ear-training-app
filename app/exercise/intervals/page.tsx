@@ -148,7 +148,7 @@ function Exercise() {
     }, []);
 
     //play piano notes
-    const playNotes = (startNote: string, endNote: string, interval: Interval, level: number) => {
+    const playNotes = (startNote: string, endNote: string, interval: Interval, level: number,) => {
         if (isSamplerLoaded) {
             if ([1, 2, 3, 4, 10].includes(level)) {
                 if (interval.format === "harmonic") {
@@ -272,6 +272,7 @@ function Exercise() {
     }, []);
 
     //vexflow rendering
+    let hasUpdated = useRef(false);
     useEffect(() => {
         if (isLoading || !intervalState.currentInterval) {
             console.log('Loading or no interval, skipping render');
@@ -306,7 +307,7 @@ function Exercise() {
                 //set interval and starting note to current note and current starting note
                 const { currentInterval } = intervalState;
                 setCurrentIntervalData(currentInterval);
-                console.log("current interval: ", currentInterval);
+                // console.log("current interval: ", currentInterval);
 
                 //if there are no intervals, skip render
                 if (!currentInterval) {
@@ -394,6 +395,7 @@ function Exercise() {
                     const voice = score.voice(score.notes(notes, { clef: isHigherThanMiddleC ? 'treble' : 'bass' }));
                     vf.Formatter().joinVoices([voice]).formatToStave([voice], stave);
                     voice.draw(vf.getContext(), stave);
+                    // hasUpdated.current = true;
                 }
 
                 vf.draw();
@@ -401,7 +403,14 @@ function Exercise() {
                 rendererRef.current = vf;
 
                 //play notes
-                playNotes(startNote, endNote, currentInterval, level);
+                if (!hasUpdated.current && !questionAnswered) {
+                    playNotes(startNote, endNote, currentInterval, level);
+                    hasUpdated.current = true; // Update ref after playback
+                }
+
+                // console.log('questionAnswered: ', questionAnswered);
+                // console.log('has updated after vexflow render: ', hasUpdated.current);
+                // console.log('isCorrect: ', isCorrect);
 
             } catch (error) {
                 console.error('Error rendering VexFlow:', error);
@@ -422,6 +431,7 @@ function Exercise() {
 
     const handleNextQuestion = () => {
         stopSounds();
+        console.log('has updated on handlenext: ', hasUpdated);
         if (currentQuestionIndex < totalQuestions - 1) {
             setCurrentQuestionIndex(prev => {
                 const newIndex = prev + 1;
@@ -430,13 +440,10 @@ function Exercise() {
                     currentInterval: allQuestions[newIndex]
                 }));
                 setCurrentQuestion(newIndex + 1);
-                // Set button states based on stored answer
-                const storedAnswer = userAnswers[newIndex];
-                setClickedButton(storedAnswer.index);
-                if (storedAnswer.isCorrect) {
-                    setIsCorrect(storedAnswer.isCorrect);
-                }
+                setClickedButton(null);
                 setIsCorrect(null);
+                setQuestionAnswered(false); // Reset questionAnswered
+                hasUpdated.current = false; // Reset hasUpdated
                 return newIndex;
             });
         } else if (currentQuestionIndex === totalQuestions - 1) {
@@ -464,7 +471,7 @@ function Exercise() {
     }
     //create new array of intervals with unique names for answer buttons
     const uniqueIntervalsNames = Array.from(new Set(intervalState.allIntervals.map(interval => interval.name)));
-    console.log("displayed interval: ", intervalState.currentInterval?.name)
+    // console.log("displayed interval: ", intervalState.currentInterval?.name)
 
     return (
         <div className="h-screen bg-gray-100 p-4 flex flex-col px-56 pt-16">
@@ -508,14 +515,22 @@ function Exercise() {
 
                 {/* Navigation and submit buttons */}
                 <div className="flex justify-between mt-4">
-                    <Button onClick={handlePreviousQuestion}>Previous</Button>
-                    <Button onClick={handleNextQuestion}>Next</Button>
+                    <Button
+                        onClick={handlePreviousQuestion}
+                        disabled={currentQuestion === 1}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        disabled={!isCorrect}
+                        onClick={handleNextQuestion}
+                    >
+                        Next
+                    </Button>
                 </div>
             </div>
         </div >
     );
-
-
 }
 
 export default Exercise;
