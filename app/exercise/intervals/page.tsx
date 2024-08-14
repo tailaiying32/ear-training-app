@@ -4,12 +4,12 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 import { Factory } from "vexflow";
 import { LevelProvider, useLevel } from '../../context/level-context';
 import { allNotesSharps } from '@/data/all-notes-sharps';
 import { allNotesFlats } from '@/data/all-notes-flats';
 import * as Tone from "tone";
-import { start } from 'repl';
 
 
 type Interval = {
@@ -48,33 +48,33 @@ function Exercise() {
     const initialQuestion = parseInt(searchParams.get("question") || "1", 10);
     const [currentQuestion, setCurrentQuestion] = useState<number>(initialQuestion);
     const [allQuestions, setAllQuestions] = useState<Interval[]>([]);
+
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [questionData, setQuestionData] = useState<Array<{ index: number | null, isCorrect: boolean | null, questionAnswered: boolean }>>(
+        Array.from({ length: totalQuestions }, () => ({ index: null, isCorrect: null, questionAnswered: false }))
+    );
+    const currentQuestionData = questionData[currentQuestionIndex];
 
     const startingNotes = allNotesSharps.slice(28, 52); //starting notes from C3 to C5
 
     const samplerRef = useRef<Tone.Sampler | null>(null);
     const [isSamplerLoaded, setIsSamplerLoaded] = useState(false);
 
-    //used to check if answer is correct
-    const [userAnswers, setUserAnswers] = useState<Array<{ index: number | null, isCorrect: boolean | null }>>(
-        Array(totalQuestions).fill({ index: null, isCorrect: null })
-    );
-    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+
     const [clickedButton, setClickedButton] = useState<number | null>(null);
+    console.log('userAnswers: ', questionData);
+
     const checkCorrect = (currentIntervalData: Interval, name: string, index: number) => {
         setClickedButton(index);
         const correct = currentIntervalData.name === name;
-        setUserAnswers(prevAnswers => {
-            const newAnswers = [...prevAnswers];
-            newAnswers[currentQuestionIndex] = { index, isCorrect: correct };
+        setQuestionData(prevQuestions => {
+            const newAnswers = [...prevQuestions];
+            newAnswers[currentQuestionIndex] = { index, isCorrect: correct, questionAnswered: true };
             return newAnswers;
         });
-        setIsCorrect(correct);
-        setQuestionAnswered(true);
     };
 
-    //check if question has been answered yet
-    const [questionAnswered, setQuestionAnswered] = useState(false);
+
 
     //set level for first time
     const level = parseInt(searchParams.get('level') || contextLevel.toString());
@@ -199,10 +199,9 @@ function Exercise() {
                         startingNote: generatedStartingNotes[index]
                     };
                 });
-                console.log("generated intervals: ", generatedIntervals);
 
                 setAllQuestions(generatedIntervals);
-                setUserAnswers(Array(totalQuestions).fill({ index: null, isCorrect: null }));
+                setQuestionData(Array(totalQuestions).fill({ index: null, isCorrect: null }));
 
                 setIntervalState({
                     currentInterval: generatedIntervals[0] || null,
@@ -274,6 +273,7 @@ function Exercise() {
     //vexflow rendering
     let hasUpdated = useRef(false);
     useEffect(() => {
+
         if (isLoading || !intervalState.currentInterval) {
             console.log('Loading or no interval, skipping render');
             return;
@@ -390,7 +390,7 @@ function Exercise() {
                 }).addClef(isHigherThanMiddleC ? 'treble' : 'bass');
 
                 // Only add notes if they should be visible
-                if (isCorrect) {
+                if (currentQuestionData.questionAnswered) {
                     stave.setContext(vf.getContext()).draw();
                     const voice = score.voice(score.notes(notes, { clef: isHigherThanMiddleC ? 'treble' : 'bass' }));
                     vf.Formatter().joinVoices([voice]).formatToStave([voice], stave);
@@ -403,7 +403,7 @@ function Exercise() {
                 rendererRef.current = vf;
 
                 //play notes
-                if (!hasUpdated.current && !questionAnswered) {
+                if (!hasUpdated.current && !currentQuestionData.questionAnswered) {
                     playNotes(startNote, endNote, currentInterval, level);
                     hasUpdated.current = true; // Update ref after playback
                 }
@@ -418,7 +418,7 @@ function Exercise() {
         }, 100);
 
         return () => clearTimeout(renderTimeout);
-    }, [intervalState.currentInterval, isLoading, getEndNote, isCorrect]);
+    }, [intervalState.currentInterval, isLoading, getEndNote, currentQuestionData.isCorrect]);
 
     //keep track of question number and update url accordingly
     useEffect(() => {
@@ -441,8 +441,8 @@ function Exercise() {
                 }));
                 setCurrentQuestion(newIndex + 1);
                 setClickedButton(null);
-                setIsCorrect(null);
-                setQuestionAnswered(false); // Reset questionAnswered
+                // setIsCorrect(null);
+                // setQuestionAnswered(false); // Reset questionAnswered
                 hasUpdated.current = false; // Reset hasUpdated
                 return newIndex;
             });
@@ -462,9 +462,8 @@ function Exercise() {
                 }));
                 setCurrentQuestion(newIndex + 1);
                 // Set button states based on stored answer
-                const storedAnswer = userAnswers[newIndex];
+                const storedAnswer = questionData[newIndex];
                 setClickedButton(storedAnswer.index);
-                setIsCorrect(storedAnswer.isCorrect);
                 return newIndex;
             });
         }
@@ -481,7 +480,7 @@ function Exercise() {
                 {/* Music notation area */}
                 <div
                     className={`bg-white border-2 border-gray-300 rounded-lg mb-4 flex items-center justify-center flex-grow 
-                    ${questionAnswered ? (userAnswers[currentQuestionIndex].isCorrect ? 'border-green-500' : 'border-red-500') : ''}`} style={{ maxHeight: '300px' }}>
+                    ${currentQuestionData.questionAnswered ? (currentQuestionData.isCorrect ? 'border-green-500' : 'border-red-500') : ''}`} style={{ maxHeight: '300px' }}>
                     <div id="output"
                         className={`w-full h-full flex flex-grow items-center justify-center`}></div>
                 </div>
@@ -501,10 +500,11 @@ function Exercise() {
                             key={index}
                             variant="outline"
                             onClick={() => checkCorrect(currentIntervalData, name, index)}
-                            className={`h-12 ${userAnswers[currentQuestionIndex].index === index
-                                ? userAnswers[currentQuestionIndex].isCorrect
-                                    ? 'border-2 border-green-500'
-                                    : 'border-2 border-red-500'
+                            disabled={currentQuestionData.questionAnswered}
+                            className={`h-12 hover: ${currentQuestionData.index === index
+                                ? currentQuestionData.isCorrect
+                                    ? 'border-2 border-green-500 bg-green-500 text-white'
+                                    : 'border-2 border-red-500 bg-red-500 text-white'
                                 : ''
                                 }`}
                         >
@@ -521,12 +521,20 @@ function Exercise() {
                     >
                         Previous
                     </Button>
-                    <Button
-                        disabled={!isCorrect}
-                        onClick={handleNextQuestion}
-                    >
-                        Next
-                    </Button>
+                    {
+                        currentQuestion === totalQuestions
+                            ? <Button asChild>
+                                <Link href="../exercise/summary">Submit</Link>
+                            </Button>
+                            : <Button
+
+                                disabled={!currentQuestionData.questionAnswered}
+                                onClick={handleNextQuestion}
+                            >
+                                Next
+                            </Button>
+                    }
+
                 </div>
             </div>
         </div >
