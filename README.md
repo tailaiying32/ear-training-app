@@ -7,7 +7,7 @@ I created this as a passion project to learn web development. This is a web appl
 ### Features:
 * Login with email
 * Four exercises: intervals, chords, chord progression, clapback/playback.
-* Follows the Royal Conservatory of Music's syllabus for piano, from grade 1 to grade 10, with additional ability to create custom exercises.
+* Follows the Royal Conservatory of Music's syllabus for piano, from grade 1 to grade 10, with ability to create custom exercises.
 * Ability to track progress over time.
 * Simple and minimalistic user experience.
 
