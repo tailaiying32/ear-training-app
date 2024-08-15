@@ -33,23 +33,23 @@ const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
 
     const instructions = (level: number) => {
         if ([1, 2, 3, 4].includes(level)) {
-            return (`You will hear an interval (ascending or descending) once. Identify the interval from the provided answer choices. Remember, there is only one correct option.`);
+            return <p>You will hear an interval (ascending or descending) <i>once</i>. Identify the interval.</p>
         } else if ([5, 6, 7, 8, 9].includes(level)) {
-            return ('You will hear an interval twice, once in melodic form (ascending or descending), followed by harmoic form. Identify the interval from the provided answer choices. Remember, there is only one correct option.');
+            return <p>You will hear an interval <i>twice</i>, once in melodic form (ascending or descending), followed by harmoic form. Identify the interval.</p>
         } else {
-            return ('You will hear an interval (ascending, descending, or harmonic) once. Identify the interval from the provided answer choices. Remember, there is only one correct option.');
+            return <p>You will hear an interval (ascending, descending, or harmonic) <i>once</i>. Identify the interval.</p>
         }
     }
     return (
         <div className="p-8 px-4 flex flex-col items-center rounded-lg w-full max-w-3xl bg-white">
             <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">{exerciseName}</h1>
-            <p className="mb-8 text-gray-600 leading-relaxed text-center">
+            <div className='mb-8 text-center text-gray-600'>
                 {instructions(level)}
-            </p>
+            </div>
 
             <div className="mb-8 w-full">
                 <h2 className="text-2xl font-semibold mb-4 text-center">Select Your Level</h2>
-                <div className="flex flex-wrap justify-center gap-3 my-3 mt-10">
+                <div className="flex flex-wrap justify-center gap-3 my-1 mt-8">
                     {Array.from({ length: 10 }, (_, i) => (
                         <Button
                             key={i + 1}
@@ -70,7 +70,7 @@ const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
                 </div>
             </div>
 
-            <div className="flex items-center justify-center gap-4 mb-4 w-full">
+            <div className="flex items-center justify-center gap-4 mb-8 w-full">
                 <span className="text-lg font-semibold">Questions:</span>
                 <input
                     type="number"
@@ -86,21 +86,22 @@ const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
                 />
             </div>
 
-            {/* <p className="text-gray-600 mb-5">or</p> */}
+            <div className='w-full space-y-2 mb-3'>
+                <Button
+                    className="mb-4 px-6 py-3 w-full bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors text-lg font-semibold"
+                >
+                    Create custom preset
+                </Button>
 
-            <Button
-                className="mb-4 px-6 py-3 w-full bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors text-lg font-semibold"
-            >
-                Create custom preset
-            </Button>
+                <Button
+                    className="px-6 py-3 w-full text-white hover:opacity-90 transition-colors text-lg font-semibold"
+                    style={{ backgroundColor: levelColors[level - 1] }}
+                    onClick={setFirstTime}
+                    asChild>
+                    <Link href={`/exercise/intervals?level=${level}&totalquestions=${numberQuestions}&question=1`} >Start!</Link>
+                </Button>
+            </div>
 
-            <Button
-                className="px-6 py-3 w-full text-white hover:opacity-90 transition-colors text-lg font-semibold"
-                style={{ backgroundColor: levelColors[level - 1] }}
-                onClick={setFirstTime}
-                asChild>
-                <Link href={`/exercise/intervals?level=${level}&totalquestions=${numberQuestions}&question=1`} >Start!</Link>
-            </Button>
 
             {!isSignedIn && (
                 <Button variant='link' className='pt-6 text-gray-600 text-sm'>

@@ -1,7 +1,7 @@
 'use client'
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-type QuestionData = Array<{ index: number | null, isCorrect: boolean | null, questionAnswered: boolean }>;
+type QuestionData = Array<{ index: number | null, isCorrect: boolean | null, questionAnswered: boolean, correctIndex: number }>;
 
 interface QuestionContextType {
     questionData: QuestionData;

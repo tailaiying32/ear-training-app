@@ -53,6 +53,10 @@ function Summary() {
                 asChild>
                 <Link href={`/exercise/intervals?level=${level}&totalquestions=${numberQuestions}&question=1`}>Restart</Link>
             </Button>
+            <Button
+                asChild>
+                <Link href={`/dashboard`}>Dashboard</Link>
+            </Button>
         </div>
     )
 }

@@ -70,7 +70,7 @@ function Exercise() {
         const correct = currentIntervalData.name === name;
         setQuestionData(prevQuestions => {
             const newAnswers = [...prevQuestions];
-            newAnswers[currentQuestionIndex] = { index, isCorrect: correct, questionAnswered: true };
+            newAnswers[currentQuestionIndex] = { index, isCorrect: correct, questionAnswered: true, correctIndex: uniqueIntervalsNames.indexOf(currentIntervalData.name) };
             return newAnswers;
         });
     };
@@ -526,11 +526,15 @@ function Exercise() {
                             variant="outline"
                             onClick={() => { checkCorrect(currentIntervalData, name, index); timeSet('end') }}
                             disabled={currentQuestionData?.questionAnswered}
-                            className={`h-12 hover: ${currentQuestionData?.index === index
-                                ? currentQuestionData?.isCorrect
-                                    ? 'border-2 border-green-500 bg-green-500 text-white'
-                                    : 'border-2 border-red-500 bg-red-500 text-white'
-                                : ''
+                            className={`h-12 hover: ${currentQuestionData?.questionAnswered
+                                    ? currentQuestionData?.index === index
+                                        ? currentQuestionData?.isCorrect
+                                            ? 'border-2 border-green-500 bg-green-500 text-white'
+                                            : 'border-2 border-red-500 bg-red-500 text-white'
+                                        : currentQuestionData?.correctIndex === index
+                                            ? 'border-2 border-green-500 bg-green-500 text-white'
+                                            : ''
+                                    : ''
                                 }`}
                         >
                             {name}
