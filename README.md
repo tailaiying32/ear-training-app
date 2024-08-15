@@ -20,4 +20,4 @@ I created this as a passion project to learn web development. This is a web appl
 * _Tailwind_: a utility-first CSS framework packed with classes like flex, pt-4, text-center and rotate-90 that can be composed to build any design, directly in your markup.
 
 ### Using the app:
-_This app is not quite ready for production use yet... That being said, if you would like to view or play around with the app yourself, download the code using the green Code button at the top right, extract the contents to a folder of your choosing, and navigate to the folder in the terminal. To start the app on your computer, run the command ```npm run dev```, and navigate to_ localhost:3000 _in your web browser._
+_This app is not quite ready for production use yet... That being said, if you would like to view or play around with the app yourself, download the code using the green Code button at the top right, extract the contents to a folder of your choosing, and navigate to the folder in the terminal. To start the app on your computer, run the command ```npm run dev```, and navigate to [Link Text](localhost:3000) in your web browser._
