@@ -11,8 +11,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { useUser, useAuth } from "@clerk/nextjs";
-import Link from "next/link";
-import { useLevel } from "../context/level-context";
+import { useLevelContext } from "../context/levelContext";
 
 
 const levelColors = [
@@ -30,7 +29,7 @@ const categories = [
 function Dashboard() {
     // const [level, setLevel] = useState(1);
     const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
-    const { level, setLevel } = useLevel();
+    const { level, setLevel } = useLevelContext();
     const [isLoaded, setIsLoaded] = useState(false);
     const { user } = useUser();
     const { isSignedIn } = useAuth();
@@ -88,7 +87,7 @@ function Dashboard() {
                                     </CardContent>
                                 </Card>
                             </DialogTrigger>
-                            <DialogContent className="w-full max-w-2xl">
+                            <DialogContent className="w-full max-w-3xl flex items-center">
                                 <Popup
                                     exerciseName={selectedExercise}
                                     setExercise={setSelectedExercise}

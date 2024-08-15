@@ -18,7 +18,7 @@ export const LevelProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-export const useLevel = (): LevelContextType => {
+export const useLevelContext = (): LevelContextType => {
     const context = useContext(LevelContext);
     if (!context) {
         throw new Error('useLevel must be used within a LevelProvider');

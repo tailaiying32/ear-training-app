@@ -33,7 +33,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "prisma/seed.mts",
-    "app/context/level-context.tsx"
+    "app/context/levelContext.tsx"
   ],
   "exclude": [
     "node_modules"

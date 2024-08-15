@@ -2,14 +2,15 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { Factory } from "vexflow";
-import { LevelProvider, useLevel } from '../../context/level-context';
+import { useLevelContext } from '../../context/levelContext';
 import { allNotesSharps } from '@/data/all-notes-sharps';
 import { allNotesFlats } from '@/data/all-notes-flats';
 import * as Tone from "tone";
+import { useQuestionContext } from '@/app/context/questionContext';
+import { useTimeContext } from '@/app/context/timeContext';
 
 
 type Interval = {
@@ -26,6 +27,7 @@ type IntervalState = {
 };
 
 function Exercise() {
+
     const searchParams = useSearchParams();
     const rendererRef = useRef<Factory | null>(null);
     const [intervalState, setIntervalState] = useState<IntervalState>({
@@ -33,37 +35,36 @@ function Exercise() {
         allIntervals: []
     });
 
+    //time data
+    const { timeData, setTimeData } = useTimeContext();
+
     //for use in return statement (start note, end note, and current interval)
     const [startNote, setStartNote] = useState<string>('');
     const [endNote, setEndNote] = useState<string>('');
     const [currentIntervalData, setCurrentIntervalData] = useState<any>(null);
 
-    //pull starting nots and level from respective data
+    //pull starting notes and level from respective data
     const [allstartingNotes, setAllStartingNotes] = useState<string[]>([]);
+    const startingNotes = allNotesSharps.slice(28, 52);    //starting notes from C3 to C5
     const [isLoading, setIsLoading] = useState(true);
-    const { level: contextLevel, setLevel } = useLevel();
+    const { level: contextLevel, setLevel } = useLevelContext();
 
     //initialize question state
     const totalQuestions = parseInt(searchParams.get("totalquestions") || "0", 10);
     const initialQuestion = parseInt(searchParams.get("question") || "1", 10);
     const [currentQuestion, setCurrentQuestion] = useState<number>(initialQuestion);
     const [allQuestions, setAllQuestions] = useState<Interval[]>([]);
-
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [questionData, setQuestionData] = useState<Array<{ index: number | null, isCorrect: boolean | null, questionAnswered: boolean }>>(
-        Array.from({ length: totalQuestions }, () => ({ index: null, isCorrect: null, questionAnswered: false }))
-    );
+    const { questionData, setQuestionData } = useQuestionContext();
     const currentQuestionData = questionData[currentQuestionIndex];
 
-    const startingNotes = allNotesSharps.slice(28, 52); //starting notes from C3 to C5
-
+    //initialize sampler
     const samplerRef = useRef<Tone.Sampler | null>(null);
     const [isSamplerLoaded, setIsSamplerLoaded] = useState(false);
 
-
     const [clickedButton, setClickedButton] = useState<number | null>(null);
-    console.log('userAnswers: ', questionData);
 
+    //check answer for correctness
     const checkCorrect = (currentIntervalData: Interval, name: string, index: number) => {
         setClickedButton(index);
         const correct = currentIntervalData.name === name;
@@ -73,8 +74,6 @@ function Exercise() {
             return newAnswers;
         });
     };
-
-
 
     //set level for first time
     const level = parseInt(searchParams.get('level') || contextLevel.toString());
@@ -149,21 +148,25 @@ function Exercise() {
 
     //play piano notes
     const playNotes = (startNote: string, endNote: string, interval: Interval, level: number,) => {
-        if (isSamplerLoaded) {
-            if ([1, 2, 3, 4, 10].includes(level)) {
-                if (interval.format === "harmonic") {
-                    samplerRef.current?.triggerAttackRelease([`${startNote}`, `${endNote}`], 1.75);
-                } else {
+        try {
+            if (isSamplerLoaded) {
+                if ([1, 2, 3, 4, 10].includes(level)) {
+                    if (interval.format === "harmonic") {
+                        samplerRef.current?.triggerAttackRelease([`${startNote}`, `${endNote}`], 1.75);
+                    } else {
+                        const now = Tone.now();
+                        samplerRef.current?.triggerAttackRelease(`${startNote}`, 1.3, now);
+                        samplerRef.current?.triggerAttackRelease(`${endNote}`, 1.2, now + 1.299); //slightly less to make the transition between notes smoother (slurred)
+                    }
+                } else if ([5, 6, 7, 8, 9].includes(level)) {
                     const now = Tone.now();
                     samplerRef.current?.triggerAttackRelease(`${startNote}`, 1.3, now);
                     samplerRef.current?.triggerAttackRelease(`${endNote}`, 1.2, now + 1.299); //slightly less to make the transition between notes smoother (slurred)
+                    samplerRef.current?.triggerAttackRelease([`${startNote}`, `${endNote}`], 1.75, now + 1.299 + 1.5);
                 }
-            } else if ([5, 6, 7, 8, 9].includes(level)) {
-                const now = Tone.now();
-                samplerRef.current?.triggerAttackRelease(`${startNote}`, 1.3, now);
-                samplerRef.current?.triggerAttackRelease(`${endNote}`, 1.2, now + 1.299); //slightly less to make the transition between notes smoother (slurred)
-                samplerRef.current?.triggerAttackRelease([`${startNote}`, `${endNote}`], 1.75, now + 1.299 + 1.5);
             }
+        } catch (error) {
+            console.error('error playing audio: ', error)
         }
     }
 
@@ -234,7 +237,6 @@ function Exercise() {
 
         if (startNote.includes('b')) {
             startNote = allNotesSharps[allNotesFlats.indexOf(startNote)];
-            console.log(startNote);
         }
 
         // determine if startNote has sharps
@@ -390,12 +392,11 @@ function Exercise() {
                 }).addClef(isHigherThanMiddleC ? 'treble' : 'bass');
 
                 // Only add notes if they should be visible
-                if (currentQuestionData.questionAnswered) {
+                if (currentQuestionData?.questionAnswered) {
                     stave.setContext(vf.getContext()).draw();
                     const voice = score.voice(score.notes(notes, { clef: isHigherThanMiddleC ? 'treble' : 'bass' }));
                     vf.Formatter().joinVoices([voice]).formatToStave([voice], stave);
                     voice.draw(vf.getContext(), stave);
-                    // hasUpdated.current = true;
                 }
 
                 vf.draw();
@@ -403,22 +404,17 @@ function Exercise() {
                 rendererRef.current = vf;
 
                 //play notes
-                if (!hasUpdated.current && !currentQuestionData.questionAnswered) {
+                if (!hasUpdated.current && !currentQuestionData?.questionAnswered) {
                     playNotes(startNote, endNote, currentInterval, level);
                     hasUpdated.current = true; // Update ref after playback
                 }
-
-                // console.log('questionAnswered: ', questionAnswered);
-                // console.log('has updated after vexflow render: ', hasUpdated.current);
-                // console.log('isCorrect: ', isCorrect);
-
             } catch (error) {
                 console.error('Error rendering VexFlow:', error);
             }
-        }, 100);
+        }, 0);
 
         return () => clearTimeout(renderTimeout);
-    }, [intervalState.currentInterval, isLoading, getEndNote, currentQuestionData.isCorrect]);
+    }, [intervalState.currentInterval, isLoading, getEndNote, currentQuestionData?.isCorrect]);
 
     //keep track of question number and update url accordingly
     useEffect(() => {
@@ -468,9 +464,38 @@ function Exercise() {
             });
         }
     }
+
+    //handle timestamping
+    const timeSet = (timestamp: 'start' | 'end') => {
+        setTimeData(prevTimeData => {
+            if (timestamp === 'start') {
+                return [
+                    ...prevTimeData,
+                    { timeStart: Date.now(), timeEnd: 0 }
+                ];
+            } else if (timestamp === 'end') {
+                if (prevTimeData.length > 0) {
+                    // Create a new array with the updated last item
+                    const updatedTimeData = [...prevTimeData];
+                    updatedTimeData[updatedTimeData.length - 1] = {
+                        ...updatedTimeData[updatedTimeData.length - 1],
+                        timeEnd: Date.now()
+                    };
+                    return updatedTimeData;
+                }
+                // Return the previous state if there are no items to update
+                return prevTimeData;
+            }
+            // Default return for safety
+            return prevTimeData;
+        });
+    };
+
+
     //create new array of intervals with unique names for answer buttons
     const uniqueIntervalsNames = Array.from(new Set(intervalState.allIntervals.map(interval => interval.name)));
-    // console.log("displayed interval: ", intervalState.currentInterval?.name)
+    console.log('question data: ', questionData)
+    console.log('time data: ', timeData);
 
     return (
         <div className="h-screen bg-gray-100 p-4 flex flex-col px-56 pt-16">
@@ -480,7 +505,7 @@ function Exercise() {
                 {/* Music notation area */}
                 <div
                     className={`bg-white border-2 border-gray-300 rounded-lg mb-4 flex items-center justify-center flex-grow 
-                    ${currentQuestionData.questionAnswered ? (currentQuestionData.isCorrect ? 'border-green-500' : 'border-red-500') : ''}`} style={{ maxHeight: '300px' }}>
+                    ${currentQuestionData?.questionAnswered ? (currentQuestionData?.isCorrect ? 'border-green-500' : 'border-red-500') : ''}`} style={{ maxHeight: '300px' }}>
                     <div id="output"
                         className={`w-full h-full flex flex-grow items-center justify-center`}></div>
                 </div>
@@ -499,10 +524,10 @@ function Exercise() {
                         <Button
                             key={index}
                             variant="outline"
-                            onClick={() => checkCorrect(currentIntervalData, name, index)}
-                            disabled={currentQuestionData.questionAnswered}
-                            className={`h-12 hover: ${currentQuestionData.index === index
-                                ? currentQuestionData.isCorrect
+                            onClick={() => { checkCorrect(currentIntervalData, name, index); timeSet('end') }}
+                            disabled={currentQuestionData?.questionAnswered}
+                            className={`h-12 hover: ${currentQuestionData?.index === index
+                                ? currentQuestionData?.isCorrect
                                     ? 'border-2 border-green-500 bg-green-500 text-white'
                                     : 'border-2 border-red-500 bg-red-500 text-white'
                                 : ''
@@ -528,8 +553,8 @@ function Exercise() {
                             </Button>
                             : <Button
 
-                                disabled={!currentQuestionData.questionAnswered}
-                                onClick={handleNextQuestion}
+                                disabled={!currentQuestionData?.questionAnswered}
+                                onClick={() => { handleNextQuestion(); timeSet('start') }}
                             >
                                 Next
                             </Button>
