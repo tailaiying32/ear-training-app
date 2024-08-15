@@ -4,8 +4,6 @@ _This is still very much a work in progress -- there are still a lot of features
 
 I created this as a passion project to learn web development. This is a web application (with plans in the far future to bring to mobile platforms) for ear training based upon the 2022 Piano Syllabus of the Royal Conservatory, with the ability to customize exercises. By providing the opportunity to practice interval, chord, and chord progression recognition, as well as clapback/playback (rhythm and melody recognition), this application allows piano and music students to train their aural skills by themselves, away from the piano, without the need for a second person. All progress made is saved to your account and displayed to allow students to track their improvement over time.
 
-![image](C:\Users\taila\OneDrive\Tailai\Code\Projects\ear-training-app-screenshot.png)
-
 ## Features:
 * Login with email
 * Four exercises: intervals, chords, chord progression, clapback/playback.
