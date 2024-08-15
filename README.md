@@ -19,4 +19,5 @@ I created this as a passion project to learn web development. This is a web appl
 * _Prisma ORM_: a next-generation Node.js and TypeScript ORM that unlocks a new level of developer experience when working with databases thanks to its intuitive data model, automated migrations, type-safety & auto-completion.
 * _Tailwind_: a utility-first CSS framework packed with classes like flex, pt-4, text-center and rotate-90 that can be composed to build any design, directly in your markup.
 
+
 _This app is not quite ready for use yet... That being said, if you would like to view or play around with the app yourself, download the code using the green Code button at the top right, extract the contents to a folder of your choosing, and navigate to the folder. To start the app on your computer, run 'npm run dev' in the terminal, and navigate to 'localhost:3000' in your web browser._
