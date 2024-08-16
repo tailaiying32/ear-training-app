@@ -27,7 +27,7 @@ type IntervalState = {
 };
 
 function Exercise() {
-
+    // **i really need to refactor this like goddamn this is too many hooks to keep track of, there's definitely a lot of things that can be combined or reduced.
     const searchParams = useSearchParams();
     const rendererRef = useRef<Factory | null>(null);
     const [intervalState, setIntervalState] = useState<IntervalState>({
@@ -527,14 +527,14 @@ function Exercise() {
                             onClick={() => { checkCorrect(currentIntervalData, name, index); timeSet('end') }}
                             disabled={currentQuestionData?.questionAnswered}
                             className={`h-12 hover: ${currentQuestionData?.questionAnswered
-                                    ? currentQuestionData?.index === index
-                                        ? currentQuestionData?.isCorrect
-                                            ? 'border-2 border-green-500 bg-green-500 text-white'
-                                            : 'border-2 border-red-500 bg-red-500 text-white'
-                                        : currentQuestionData?.correctIndex === index
-                                            ? 'border-2 border-green-500 bg-green-500 text-white'
-                                            : ''
-                                    : ''
+                                ? currentQuestionData?.index === index
+                                    ? currentQuestionData?.isCorrect
+                                        ? 'border-2 border-green-500 bg-green-500 text-white'
+                                        : 'border-2 border-red-500 bg-red-500 text-white'
+                                    : currentQuestionData?.correctIndex === index
+                                        ? 'border-2 border-green-500 bg-green-500 text-white'
+                                        : ''
+                                : ''
                                 }`}
                         >
                             {name}
