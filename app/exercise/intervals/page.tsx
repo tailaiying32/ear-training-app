@@ -498,35 +498,34 @@ function Exercise() {
     console.log('time data: ', timeData);
 
     return (
-        <div className="h-screen bg-gray-100 p-4 flex flex-col px-56 pt-16">
-            <h1 className="text-3xl font-bold mb-4 text-center">Intervals - Level {level}</h1>
+        <div className="h-[100vh] bg-gray-100 p-4 flex flex-col px-8 md:px-32 lg:px-56 pt-16">
+            <h1 className="text-4xl md:text-4xl font-bold mb-6 text-center">Intervals - Level {level}</h1>
 
             <div className="flex-grow flex flex-col">
-                {/* Music notation area */}
                 <div
-                    className={`bg-white border-2 border-gray-300 rounded-lg mb-4 flex items-center justify-center flex-grow 
-                    ${currentQuestionData?.questionAnswered ? (currentQuestionData?.isCorrect ? 'border-green-500' : 'border-red-500') : ''}`} style={{ maxHeight: '300px' }}>
-                    <div id="output"
-                        className={`w-full h-full flex flex-grow items-center justify-center`}></div>
+                    className={`bg-white border-2 border-gray-300 rounded-lg mb-6 flex items-center justify-center flex-grow 
+            ${currentQuestionData?.questionAnswered ? (currentQuestionData?.isCorrect ? 'border-green-500' : 'border-red-500') : ''}`}
+                    style={{ maxHeight: '300px' }}>
+                    <div id="output" className="w-full h-full flex items-center justify-center"></div>
                 </div>
 
                 {/* Play Interval button */}
                 <Button
-                    className="w-full mb-4"
+                    className="w-full mb-6 py-2 md:py-3 text-lg"
                     onClick={() => { playNotes(startNote, endNote, currentIntervalData, level); stopSounds(); }}
                 >
                     Play Interval
                 </Button>
 
                 {/* Answer options */}
-                <div className="grid-container mb-4">
+                <div className={`grid grid-cols-2 ${uniqueIntervalsNames.length > 6 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-4 mb-6`}>
                     {uniqueIntervalsNames.map((name, index) => (
                         <Button
                             key={index}
                             variant="outline"
                             onClick={() => { checkCorrect(currentIntervalData, name, index); timeSet('end') }}
                             disabled={currentQuestionData?.questionAnswered}
-                            className={`h-12 hover: ${currentQuestionData?.questionAnswered
+                            className={`h-14 md:h-16 lg:h-20 text-base md:text-lg lg:text-xl ${currentQuestionData?.questionAnswered
                                 ? currentQuestionData?.index === index
                                     ? currentQuestionData?.isCorrect
                                         ? 'border-2 border-green-500 bg-green-500 text-white'
@@ -543,30 +542,29 @@ function Exercise() {
                 </div>
 
                 {/* Navigation and submit buttons */}
-                <div className="flex justify-between mt-4">
+                <div className="flex justify-between mt-6">
                     <Button
                         onClick={handlePreviousQuestion}
                         disabled={currentQuestion === 1}
+                        className="py-2 px-4 md:py-3 md:px-6 text-lg"
                     >
                         Previous
                     </Button>
-                    {
-                        currentQuestion === totalQuestions
-                            ? <Button asChild>
-                                <Link href="../exercise/summary">Submit</Link>
-                            </Button>
-                            : <Button
-
-                                disabled={!currentQuestionData?.questionAnswered}
-                                onClick={() => { handleNextQuestion(); timeSet('start') }}
-                            >
-                                Next
-                            </Button>
-                    }
-
+                    {currentQuestion === totalQuestions
+                        ? <Button asChild className="py-2 px-4 md:py-3 md:px-6 text-lg">
+                            <Link href="../exercise/summary">Submit</Link>
+                        </Button>
+                        : <Button
+                            disabled={!currentQuestionData?.questionAnswered}
+                            onClick={() => { handleNextQuestion(); timeSet('start') }}
+                            className="py-2 px-4 md:py-3 md:px-6 text-lg"
+                        >
+                            Next
+                        </Button>}
                 </div>
             </div>
-        </div >
+        </div>
+
     );
 }
 

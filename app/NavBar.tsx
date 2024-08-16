@@ -68,13 +68,13 @@ const NavBar = () => {
                     </div>
                     <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                         <div className="flex-shrink-0">
-                            <Link href="/">
+                            {/* <Link href="/">
                                 <img
                                     className="h-12 w-auto"
                                     src="https://apollodesign.net/media/catalog/product/cache/dbf21ea40c5a4552c901061577d4786d/M/S/MSDS-8017.png"
                                     alt="Your Company"
                                 />
-                            </Link>
+                            </Link> */}
 
                         </div>
                         <div className="hidden sm:flex sm:items-center sm:ml-6 justify-between w-full">
