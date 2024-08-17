@@ -8,6 +8,8 @@ import { useLevelContext } from "@/app/context/levelContext";
 import { useState } from "react";
 import { useNumberQuestions } from "@/app/context/numberQuestionsContext";
 import { useTimeContext } from "@/app/context/timeContext";
+import { PrismaClient } from "@prisma/client";
+
 
 function Summary() {
     const { questionData } = useQuestionContext();

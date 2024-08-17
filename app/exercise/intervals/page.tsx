@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
-import { Factory } from "vexflow";
+import { Factory, Barline } from "vexflow";
 import { useLevelContext } from '../../context/levelContext';
 import { allNotesSharps } from '@/data/all-notes-sharps';
 import { allNotesFlats } from '@/data/all-notes-flats';
@@ -300,7 +300,7 @@ function Exercise() {
                 const system = vf.System({
                     width: 400,
                     x: 0,
-                    y: 0
+                    y: 12
                 });
 
 
@@ -389,7 +389,9 @@ function Exercise() {
                 // Always add the stave and clef
                 const stave = system.addStave({
                     voices: []
-                }).addClef(isHigherThanMiddleC ? 'treble' : 'bass');
+                }).addClef(isHigherThanMiddleC ? 'treble' : 'bass')
+                    .setEndBarType(Barline.type.END)
+                    .setBegBarType(Barline.type.SINGLE)
 
                 // Only add notes if they should be visible
                 if (currentQuestionData?.questionAnswered) {
@@ -518,14 +520,14 @@ function Exercise() {
                 </Button>
 
                 {/* Answer options */}
-                <div className={`grid grid-cols-2 ${uniqueIntervalsNames.length > 6 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-4 mb-6`}>
+                <div className={`grid grid-cols-2 ${uniqueIntervalsNames.length > 6 ? 'md:grid-cols-6' : 'md:grid-cols-3'} gap-4 mb-6`}>
                     {uniqueIntervalsNames.map((name, index) => (
                         <Button
                             key={index}
                             variant="outline"
                             onClick={() => { checkCorrect(currentIntervalData, name, index); timeSet('end') }}
                             disabled={currentQuestionData?.questionAnswered}
-                            className={`h-14 md:h-16 lg:h-20 text-base md:text-lg lg:text-xl ${currentQuestionData?.questionAnswered
+                            className={`h-14 md:h-16 lg:h-20 md:text-base lg:text-lg ${currentQuestionData?.questionAnswered
                                 ? currentQuestionData?.index === index
                                     ? currentQuestionData?.isCorrect
                                         ? 'border-2 border-green-500 bg-green-500 text-white'

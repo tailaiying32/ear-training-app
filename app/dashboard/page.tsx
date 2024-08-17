@@ -10,7 +10,6 @@ import {
     DialogContent,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { useUser, useAuth } from "@clerk/nextjs";
 import { useLevelContext } from "../context/levelContext";
 
 
@@ -31,8 +30,6 @@ function Dashboard() {
     const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
     const { level, setLevel } = useLevelContext();
     const [isLoaded, setIsLoaded] = useState(false);
-    const { user } = useUser();
-    const { isSignedIn } = useAuth();
 
     useEffect(() => {
         setIsLoaded(true);
@@ -44,10 +41,10 @@ function Dashboard() {
                 <h1 className="text-6xl font-bold mb-4 text-center">Ear Training</h1>
 
                 <p className="text-xl text-center mb-12 text-gray-600 font-normal mt-6">
-                    {isSignedIn ?
+                    {/* {isSignedIn ?
                         (user?.firstName ? `Welcome back ${user?.firstName}!` : 'Welcome back!') :
                         'Welcome!'
-                    }
+                    } */}
                 </p>
 
                 <div className="mb-16 flex justify-center">

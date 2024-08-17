@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { SignOutButton, useAuth } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 
 const NavBar = () => {
@@ -17,7 +16,6 @@ const NavBar = () => {
         setMenuOpen(!menuOpen);
     };
 
-    const { getToken, isLoaded, isSignedIn } = useAuth();
 
     return (
         <nav className="bg-black w-full sticky top-0 z-50">
@@ -111,7 +109,7 @@ const NavBar = () => {
                                     Learn
                                 </Link>
                             </div>
-                            {isSignedIn && (
+                            {/* {isSignedIn && (
                                 <div className='text-gray-300 hover:text-white text-base font-normal'>
                                     <SignOutButton>Sign Out</SignOutButton>
                                 </div>
@@ -127,7 +125,7 @@ const NavBar = () => {
                                 >
                                     Sign In
                                 </Link>
-                            )}
+                            )} */}
 
                         </div>
                     </div>

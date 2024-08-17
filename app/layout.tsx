@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "./NavBar";
-import { ClerkProvider } from "@clerk/nextjs";
 import { LevelProvider } from "./context/levelContext";
 import { QuestionProvider } from "@/app/context/questionContext";
 import { NumberQuestionProvider } from "./context/numberQuestionsContext";
@@ -21,22 +20,20 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ClerkProvider>
-            <QuestionProvider>
-                <NumberQuestionProvider>
-                    <LevelProvider>
-                        <TimeProvider>
-                            <html lang="en">
-                                <body className={inter.className}>
-                                    <NavBar />
-                                    {children}
-                                </body>
-                            </html>
-                        </TimeProvider>
-                    </LevelProvider>
-                </NumberQuestionProvider>
-            </QuestionProvider>
-        </ClerkProvider >
+        <QuestionProvider>
+            <NumberQuestionProvider>
+                <LevelProvider>
+                    <TimeProvider>
+                        <html lang="en">
+                            <body className={inter.className}>
+                                <NavBar />
+                                {children}
+                            </body>
+                        </html>
+                    </TimeProvider>
+                </LevelProvider>
+            </NumberQuestionProvider>
+        </QuestionProvider>
 
     );
 }

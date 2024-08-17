@@ -8,26 +8,38 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  clerkId   String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  exercises Exercise[]
+  id            String    @id
+  username      String    @unique
+  password_hash String
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Level {
   id                 Int                 @id @default(autoincrement())
   level              Int                 @unique
-  Intervals          Interval[]
-  Chords             Chord[]
-  Chord_Progressions Chord_Progression[]
+  exerciseId         Int?
+  Exercise           Exercise?           @relation(fields: [exerciseId], references: [id])
+  Chords             Chord[]             @relation("ChordToLevel")
+  Chord_Progressions Chord_Progression[] @relation("Chord_ProgressionToLevel")
+  Intervals          Interval[]          @relation("IntervalToLevel")
 }
 
 model Exercise {
-  id     Int          @id
-  type   ExerciseType
-  User   User?        @relation(fields: [userId], references: [id])
-  userId Int?
+  id              Int          @id
+  type            ExerciseType
+  userId          Int?
+  Points          Int
+  timeEnd         DateTime
+  timePerQuestion DateTime
+  timeStart       DateTime
+  level           Level[]
 }
 
 model Interval {
@@ -35,21 +47,21 @@ model Interval {
   name      String
   halfsteps Int
   format    String
-  Levels    Level[]
+  Levels    Level[] @relation("IntervalToLevel")
 }
 
 model Chord {
   id     Int     @id @default(autoincrement())
   name   String
   type   String
-  Levels Level[]
+  Levels Level[] @relation("ChordToLevel")
 }
 
 model Chord_Progression {
   id          Int     @id @default(autoincrement())
   name        String
   progression String
-  Levels      Level[]
+  Levels      Level[] @relation("Chord_ProgressionToLevel")
 }
 
 enum ExerciseType {

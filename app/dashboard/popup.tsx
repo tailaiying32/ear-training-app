@@ -3,7 +3,6 @@
 import React, { useState, Dispatch, SetStateAction } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useAuth } from '@clerk/nextjs';
 import { useLevelContext } from '../context/levelContext';
 import { useNumberQuestions } from '../context/numberQuestionsContext';
 import { useTimeContext } from '../context/timeContext';
@@ -21,7 +20,6 @@ const levelColors = [
 ];
 
 const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
-    const { isSignedIn } = useAuth();
     const { numberQuestions, setNumberQuestions } = useNumberQuestions();
     const { level, setLevel } = useLevelContext();
     const { timeData, setTimeData } = useTimeContext();
@@ -103,11 +101,11 @@ const Popup: React.FC<PopupProps> = ({ exerciseName, setExercise }) => {
             </div>
 
 
-            {!isSignedIn && (
+            {/* {!isSignedIn && (
                 <Button variant='link' className='pt-6 text-gray-600 text-sm'>
                     <Link href='/sign-in' className='flex-grow'>Sign in to save your progress</Link>
                 </Button>
-            )}
+            )} */}
         </div >
     );
 }
