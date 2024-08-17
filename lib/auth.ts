@@ -4,7 +4,7 @@ import { Lucia } from "lucia";
 
 const client = new PrismaClient();
 
-const adapter = new PrismaAdapter(client.user, client.session);
+const adapter = new PrismaAdapter(client.session, client.user);
 
 export const lucia = new Lucia(adapter, {
     sessionCookie: {

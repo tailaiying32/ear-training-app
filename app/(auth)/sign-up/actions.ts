@@ -39,20 +39,11 @@ export async function signup(formData: FormData): Promise<ActionResult> {
         throw new Error("Username already taken");
     }
 
-
-    console.log('id: ', userId)
-    console.log('username: ', username)
-    console.log('password: ', passwordHash)
-
     const userData = {
         id: userId,
         username: username as string,
         password_hash: passwordHash
     };
-
-    console.log('User data to be inserted:', userData);
-    console.log('User data to be inserted:', JSON.stringify(userData, null, 2));
-
 
     await db.user.create({
         data: {
