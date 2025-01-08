@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/button';
 
-const NavBar = () => {
+const NavBar = ({ user: String }) => {
 
     const pathname = usePathname();
 
@@ -15,7 +15,6 @@ const NavBar = () => {
     const handleMenuToggle = () => {
         setMenuOpen(!menuOpen);
     };
-
 
     return (
         <nav className="bg-black w-full sticky top-0 z-50">
@@ -66,13 +65,7 @@ const NavBar = () => {
                     </div>
                     <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                         <div className="flex-shrink-0">
-                            {/* <Link href="/">
-                                <img
-                                    className="h-12 w-auto"
-                                    src="https://apollodesign.net/media/catalog/product/cache/dbf21ea40c5a4552c901061577d4786d/M/S/MSDS-8017.png"
-                                    alt="Your Company"
-                                />
-                            </Link> */}
+
 
                         </div>
                         <div className="hidden sm:flex sm:items-center sm:ml-6 justify-between w-full">
@@ -109,12 +102,13 @@ const NavBar = () => {
                                     Learn
                                 </Link>
                             </div>
-                            {/* {isSignedIn && (
+
+                            {/* {user && (
                                 <div className='text-gray-300 hover:text-white text-base font-normal'>
-                                    <SignOutButton>Sign Out</SignOutButton>
+                                    <Link href='/signout'>Sign Out</Link>
                                 </div>
                             )}
-                            {!isSignedIn && (
+                            {!user && (
                                 <Link
                                     href="/sign-in"
                                     className={clsx("px-3 py-2 rounded-md text-base font-normal text-gray-300 hover:text-white",

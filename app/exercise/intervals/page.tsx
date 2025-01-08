@@ -544,7 +544,7 @@ function Exercise() {
                 </div>
 
                 {/* Navigation and submit buttons */}
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-between my-6">
                     <Button
                         onClick={handlePreviousQuestion}
                         disabled={currentQuestion === 1}

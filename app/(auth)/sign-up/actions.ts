@@ -41,7 +41,7 @@ export async function signup(formData: FormData): Promise<ActionResult> {
 
     const userData = {
         id: userId,
-        username: username as string,
+        username: username,
         password_hash: passwordHash
     };
 
