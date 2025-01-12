@@ -1,8 +1,6 @@
 # Ear Training App
 
-_This is still very much a work in progress -- there are still a lot of features to be added._
-
-I created this as a passion project to learn web development. This is a web application (with plans in the far future to bring to mobile platforms) for ear training based upon the 2022 Piano Syllabus of the Royal Conservatory, with the ability to customize exercises. By providing the opportunity to practice interval, chord, and chord progression recognition, as well as clapback/playback (rhythm and melody recognition), this application allows piano and music students to train their aural skills by themselves, away from the piano, without the need for a second person. All progress made is saved to the user's account and displayed to allow students to track their improvement over time.
+I created this as a passion project to learn web development. This is a web application for ear training based upon the 2022 Piano Syllabus of the Royal Conservatory, with the ability to customize exercises. By providing the opportunity to practice interval, chord, and chord progression recognition, as well as clapback/playback (rhythm and melody recognition), this application allows piano and music students to train their aural skills by themselves, away from the piano, without the need for a second person. All progress made is saved to the user's account and displayed to allow students to track their improvement over time.
 
 ## Features:
 * Login with email
@@ -21,4 +19,4 @@ I created this as a passion project to learn web development. This is a web appl
 * _Lucia_: an auth library for your server that abstracts away the complexity of handling sessions.
 
 ### Using the app:
-_This app is not quite polished enough for deployment yet... That being said, if you would like to view or play around with the app yourself, download the code as a zip file using the green Code button at the top right, extract the contents to a folder of your choosing, and navigate to the folder in the terminal. To start the app on your computer, run the command ```npm run dev```, and navigate to ```localhost:3000``` in your web browser._
+_If you would like to view or play around with the app yourself, download the code as a zip file using the green Code button at the top right, extract the contents to a folder of your choosing, and navigate to the folder in the terminal. To start the app on your computer, run the command ```npm run dev```, and navigate to ```localhost:3000``` in your web browser._
